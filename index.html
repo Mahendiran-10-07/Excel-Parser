@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Processor</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; background-color: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 2em; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .tab-container { display: flex; border-bottom: 2px solid #ccc; margin-bottom: 20px; gap: 5px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .flash { padding: 10px; margin-bottom: 10px; border: 1px solid; border-radius: 4px; }
+        .flash.error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        .flash.success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        
+        /* General Button Styles */
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; }
+        button:hover { background-color: #0056b3; }
+
+        /* Styles for Tab Navigation Buttons */
+        .tab-btn {
+            background-color: #6c757d; /* Default grey color */
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .tab-btn.active {
+            background-color: #007bff; /* Active blue color */
+            border: 2px solid #ccc;
+            border-bottom: 2px solid white;
+            position: relative;
+            top: 2px;
+        }
+
+        /* Styles for Sheet Selection Buttons */
+        .sheet-choice-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .sheet-btn { padding: 10px 15px; background-color: #6c757d; color: white; }
+        .sheet-btn.active { background-color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Processor</h1>
+
+        <!-- Display any messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Download links for features that don't show a preview -->
+        {% if session.get('verifier_filename') %}
+            <div class="results-container" style="margin-bottom: 20px;">
+                <a href="{{ url_for('download_file') }}"><button>Download Verified File</button></a>
+            </div>
+        {% endif %}
+        {% if session.get('pdf_filename') %}
+            <div class="results-container" style="margin-bottom: 20px;">
+                <a href="{{ url_for('download_file') }}"><button>Download PDF Data as Excel</button></a>
+            </div>
+        {% endif %}
+
+        <!-- Tab Navigation as Buttons -->
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="openTab(event, 'sheets')">Sheets</button>
+            <button class="tab-btn" onclick="openTab(event, 'image')">Image</button>
+            <button class="tab-btn" onclick="openTab(event, 'verifier')">Email Verifier</button>
+            <button class="tab-btn" onclick="openTab(event, 'pdf')">PDF Processor</button>
+        </div>
+
+        <!-- Sheets Tab Content -->
+        <div id="sheets" class="tab-content active">
+            <h2>Process Excel Sheets</h2>
+            <form action="/process_sheet" method="post" enctype="multipart/form-data">
+                <div>
+                    <label for="file">Upload .xlsx file:</label><br>
+                    <input type="file" name="file" id="file" accept=".xlsx" required>
+                </div>
+                <br>
+                <div>
+                    <label>Choose sheet to process:</label><br>
+                    <div class="sheet-choice-container">
+                        <button type="button" class="sheet-btn active" data-value="Sheet1">Sheet 1</button>
+                        <button type="button" class="sheet-btn" data-value="Sheet2">Sheet 2</button>
+                    </div>
+                    <input type="hidden" name="sheet_choice" id="sheet_choice_input" value="Sheet1">
+                </div>
+                <button type="submit">Process Sheet</button>
+            </form>
+        </div>
+
+        <!-- Image Tab Content -->
+        <div id="image" class="tab-content">
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="openSubTab(event, 'screenshots')">Screenshots</button>
+                <button class="tab-btn" onclick="openSubTab(event, 'whatsapp')">WhatsApp Image</button>
+            </div>
+            <div id="screenshots" class="tab-content active">
+                <h2>Process Screenshot of Excel Data</h2>
+                <form action="/process_image" method="post" enctype="multipart/form-data">
+                    <div>
+                        <label for="image_file">Upload Screenshots (jpg, png):</label><br>
+                        <input type="file" name="image_file" id="image_file" accept="image/png, image/jpeg" required multiple>
+                    </div>
+                    <br>
+                    <button type="submit">Extract Data from Images</button>
+                </form>
+            </div>
+            <div id="whatsapp" class="tab-content">
+                <h2>Extract Phone Numbers from WhatsApp Chats</h2>
+                <form action="/process_whatsapp" method="post" enctype="multipart/form-data">
+                    <div>
+                        <label for="whatsapp_file">Upload WhatsApp Screenshots (jpg, png):</label><br>
+                        <input type="file" name="whatsapp_file" id="whatsapp_file" accept="image/png, image/jpeg" required multiple>
+                    </div>
+                    <br>
+                    <button type="submit">Extract Phone Numbers</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Email Verifier Tab Content -->
+        <div id="verifier" class="tab-content">
+            <h2>Verify Email Addresses in an Excel File</h2>
+            <form action="/verify_emails" method="post" enctype="multipart/form-data">
+                <div>
+                    <label for="verifier_file">Upload .xlsx file:</label><br>
+                    <input type="file" name="verifier_file" id="verifier_file" accept=".xlsx" required>
+                </div>
+                <br>
+                <button type="submit">Verify Emails</button>
+            </form>
+        </div>
+
+        <!-- PDF Processor Tab Content -->
+        <div id="pdf" class="tab-content">
+            <h2>Extract Table Data from PDF</h2>
+            <form action="/process_pdf" method="post" enctype="multipart/form-data">
+                <div>
+                    <label for="pdf_file">Upload .pdf file:</label><br>
+                    <input type="file" name="pdf_file" id="pdf_file" accept=".pdf" required>
+                </div>
+                <br>
+                <button type="submit">Extract from PDF</button>
+            </form>
+        </div>
+
+        <!-- Results Display for Sheets/Image -->
+        {% if data %}
+        <div class="results-container">
+            <hr style="margin: 2em 0;">
+            <h2>Processed Data</h2>
+            <a href="{{ url_for('download_file') }}"><button>Download as Excel File</button></a>
+            <br><br>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for header in headers %}<th>{{ header }}</th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            {% for header in headers %}<td>{{ row.get(header, '') }}</td>{% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.querySelectorAll('.container > .tab-content');
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.querySelectorAll('.container > .tab-container > .tab-btn');
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.classList.add("active");
+        }
+
+        function openSubTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementById('image').querySelectorAll('.tab-content');
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementById('image').querySelectorAll('.tab-container > .tab-btn');
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.classList.add("active");
+        }
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            // Logic for sheet selection buttons
+            const sheetButtons = document.querySelectorAll('.sheet-btn');
+            const sheetChoiceInput = document.getElementById('sheet_choice_input');
+            sheetButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    sheetButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    sheetChoiceInput.value = this.getAttribute('data-value');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
