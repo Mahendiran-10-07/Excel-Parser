@@ -13,7 +13,7 @@ import time
 
 
 app = Flask(__name__)
-app.secret_key = '7c5bf2a2e99d01369d411c7f11e6a5f8'
+app.secret_key = 'Your_key'
 
 DOWNLOAD_FOLDER = 'temp_downloads'
 
@@ -363,4 +363,5 @@ def download_file():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
