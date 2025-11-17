@@ -42,13 +42,7 @@ Intelligently combines the data from all pages into a single, clean Excel file.
 
 ✉️ Email Verifier:
 
-Uploads an Excel file containing one or more sheets.
-
-Automatically detects the 'Email' column on every sheet.
-
-Performs a syntactical check (using regex) to validate each email address.
-
-Generates a new Excel file with an "Email Status" (Valid/Invalid/Empty) column added to every sheet.
+--------Work on Process--------
 
 🚀 How to Set Up and Run This Project
 
