@@ -1,5 +1,3 @@
-# Excel-Parser
-
 🤖 Excel Parser Pro (with AI Vision)
 
 This is a powerful Flask web application designed to automate and simplify complex data extraction tasks. It provides a clean web interface for processing unstructured data from various sources (Excel, Images, PDFs) and transforms it into clean, structured, and downloadable .xlsx files using Python, Pandas, and the Google Gemini AI API.
@@ -42,7 +40,13 @@ Intelligently combines the data from all pages into a single, clean Excel file.
 
 ✉️ Email Verifier:
 
---------Work on Process--------
+Uploads an Excel file containing one or more sheets.
+
+Automatically detects the 'Email' column on every sheet.
+
+Performs a syntactical check (using regex) to validate each email address.
+
+Generates a new Excel file with an "Email Status" (Valid/Invalid/Empty) column added to every sheet.
 
 🚀 How to Set Up and Run This Project
 
@@ -109,7 +113,7 @@ python app.py
 The application will be running at http://127.0.0.1:5000. Open this address in your web browser.
 
 Project File Structure
-'''
+
 Excel-Parser/
 │
 ├── .gitignore          # 👈 Tells Git to ignore venv, .env, and other junk files
@@ -120,4 +124,3 @@ Excel-Parser/
 │
 └── templates/
     └── index.html      # 👈 The HTML frontend for the web application
-'''
