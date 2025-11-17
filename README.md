@@ -109,7 +109,7 @@ python app.py
 The application will be running at http://127.0.0.1:5000. Open this address in your web browser.
 
 Project File Structure
-
+'''
 Excel-Parser/
 │
 ├── .gitignore          # 👈 Tells Git to ignore venv, .env, and other junk files
@@ -120,3 +120,4 @@ Excel-Parser/
 │
 └── templates/
     └── index.html      # 👈 The HTML frontend for the web application
+'''
