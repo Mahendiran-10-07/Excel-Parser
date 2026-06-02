@@ -59,7 +59,7 @@ Google Gemini API Key: You must have a valid API key from the Google AI Studio.
 1. Clone the Repository:
 Open your terminal and clone this project.
 
-git clone [https://github.com/your-username/Excel-Parser.git](https://github.com/your-username/Excel-Parser.git)
+git clone [https://github.com/your-username/Excel-Parser.git](https://github.com/Mahendiran-10-07/Excel-Parser.git)
 cd Excel-Parser
 
 
